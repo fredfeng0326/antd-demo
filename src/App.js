@@ -47,11 +47,37 @@ class Image extends Component {
     }
 }
 
+const container = {
+    margin: "0 auto",
+    position: "relative"
+}
+const canvas = {
+    position: 'absolute',
+    top: '0',
+    left: '0',
+    zIndex: '10',
+    backgroundColor: 'rgba(0,0,0,0)'
+}
+
+const video = {
+    width: '400px',
+    height: '400px',
+    position: 'absolute',
+    top: '0',
+    left: '0'
+}
+
 class Video extends Component {
-    state = {
-        fileList: [],
-        selectedAttachment: null
-    };
+    constructor(props) {
+        super(props)
+        this.state = {
+            fileList: [],
+            selectedAttachment: null,
+            testText: 'TextHere First'
+        };
+        this.resize_canvas = this.resize_canvas.bind(this)
+    }
+
 
     viewAttachment = file => {
         let reader = new FileReader();
@@ -75,10 +101,31 @@ class Video extends Component {
         reader.readAsDataURL(file);
     };
 
+    resize_canvas(element) {
+        var canvas = document.getElementById("cv1");
+        if (canvas.getContext) {
+            //获取对应的CanvasRenderingContext2D对象(画笔)
+            var ctx = canvas.getContext("2d");
+            //设置字体样式
+            ctx.font = "30px Courier New";
+            //设置字体颜色
+            ctx.strokeStyle = "blue";
+            //从坐标点(50,50)开始绘制文字
+            ctx.strokeText(this.state.testText, 50, 50);
+        }
+    }
+
+    updateInputValue(evt) {
+        this.setState({
+            testText: evt.target.value
+        });
+    }
+
     render() {
         return (
             <div className="video">
                 <h3>Upload Video</h3>
+                <input value={this.state.testText} onChange={evt => this.updateInputValue(evt)}/>
                 <Upload
                     multiple={false}
                     beforeUpload={e => false}
@@ -112,21 +159,25 @@ class Video extends Component {
                         })}
                     </ul>
                 )}
-                {this.state.selectedAttachment && (
-                    <Player
-                        playsInline
-                        fluid={false}
-                        width={400}
-                        height={200}
-                        poster="/assets/poster.png"
-                        src={this.state.selectedAttachment.blobData}
-                    />
-                )}
+                <div style={container}>
+                    {this.state.selectedAttachment && (
+                        <video style={video} className="video" id="vd1" width="400" controls
+                               onPlay={this.resize_canvas}>
+                            <source
+                                src={this.state.selectedAttachment.blobData}
+                                type={this.state.selectedAttachment.file.type}
+                            />
+                            Your browser does not support HTML5 video.
+                        </video>
+                    )}
+                    <canvas style={canvas} id='cv1'></canvas>
+                </div>
 
             </div>
         )
     }
 }
+
 
 class Texts extends Component {
     state = {
@@ -186,7 +237,7 @@ class Texts extends Component {
                         <input type='file' accept='text/plain' onChange={this.changePath}/>
                     </div>
                 </div>
-                <div className='media'>
+                <div>
                     {preview}
                 </div>
             </div>
@@ -367,6 +418,13 @@ class page extends React.Component {
                     <Col span={14} style={{background: 'rgba(220, 255, 232, 0.6)'}}>
                         <div style={{overflowY: 'scroll', height: '400px'}}>
                             <Wysiwyg/>
+                        </div>
+                    </Col>
+                </Row>
+                <Row gutter={16} style={{marginTop: '10px'}}>
+                    <Col span={24} style={{background: 'rgba(220, 254, 245, 0.6)'}}>
+                        <div style={{overflowY: 'scroll', height: '400px'}}>
+
                         </div>
                     </Col>
                 </Row>
